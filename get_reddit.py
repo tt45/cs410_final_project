@@ -32,7 +32,7 @@ def get_sentiment(year, month, day):
     r2 = requests.get("https://api.havenondemand.com/1/api/sync/analyzesentiment/v2?apikey=07af18eb-e943-4dd0-9fdf-93b06614c921&url=" + archive_url, verify = False, timeout = 100)
     if(r2.status_code == 200):
         data2 = json.loads(r2.text)
-        return data2['aggregate']['score']
+        return data2['sentiment_analysis'][0]['aggregate']['score']
     else:
         print("Error return code = "+str(r2.status_code))
 
