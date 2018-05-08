@@ -59,8 +59,8 @@ def merge_data(price_data, sentiment_data):
         writer = csv.writer(myFile)
         for i in range(len(price_data)):
             str_date = str(date_iter).replace("-", "")
+            writer.writerow([str_date, price_data[str_date], sentiment_data[str_date]])
             date_iter -= datetime.timedelta(days=1)
-            #writer.writerow([str(date_iter), price_data[str(date_iter)], sentiment_data[str(date_iter)]])
 
 
 def main():
