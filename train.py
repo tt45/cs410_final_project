@@ -19,12 +19,12 @@ def main():
     # select 80% as training data
     # since the data is corresponding with date, it has to be in order
     print(len(y_arr), len(x_arr))
-    index_cut = int(len(y_arr)*0.8)
-    train_x = x_arr[0:index_cut]
-    test_x = x_arr[index_cut:len(x_arr)]
-    train_y = y_arr[0:index_cut]
-    test_y = y_arr[index_cut:len(x_arr)]
-    test_date = date_arr[index_cut:len(x_arr)]
+    index_cut = int(len(y_arr)*0.2)
+    test_x = x_arr[0:index_cut]
+    train_x = x_arr[index_cut:len(x_arr)]
+    test_y = y_arr[0:index_cut]
+    train_y = y_arr[index_cut:len(x_arr)]
+    test_date = date_arr[0:index_cut]
 
     # process data to use [days] day prev [prev-price and this day's sentiment]
     day = 2
