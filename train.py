@@ -62,27 +62,36 @@ def main():
         Xtest.append(x)
     test_x = np.array(Xtest)
     test_y = np.array(Ytest)
-    print(test_x.shape)
-    print(test_y.shape)
+    #print(test_x.shape)
+    #print(test_y.shape)
 
-
-    # train model
+    # Model building:
+    # LSTM Networks with
+    #   3 layers
+    #   50 nodes per layers
+    #   loss = Mean Absolute Error
+    #   optimizer = Adam Optimization 
     import keras
     lstm = keras.models.Sequential()
     lstm.add(keras.layers.LSTM(50, input_shape=(train_x.shape[1], train_x.shape[2]), return_sequences=True))
     lstm.add(keras.layers.LSTM(50))
     lstm.add(keras.layers.Dense(1))
     lstm.compile(loss='mae', optimizer='adam')
-
+    
+    # Model training:
+    #   bagging with 
+    #   batch_size = 100
+    #   epochs = 300
     re = lstm.fit(train_x, train_y, epochs=300, batch_size=100, validation_data=(test_x, test_y), verbose=0, shuffle=False)
-    print(re)
+    # print(re)
 
+    # Model evaluating:
     from sklearn.metrics import mean_squared_error
     predict_y = lstm.predict(test_x)
     err = sqrt(mean_squared_error(test_y, predict_y))
     print('raw err: %.3f' % err)
 
-    # test_date
+    # Price re-convert evaluating:
     predict_y = mmscaler.inverse_transform(predict_y.reshape(-1, 1))
     test_y = mmscaler.inverse_transform(test_y.reshape(-1, 1))
     err = sqrt(mean_squared_error(test_y, predict_y))
@@ -92,12 +101,11 @@ def main():
     y = np.array(test_y)
     test_date = np.array(test_date)
 
-    print("py.shape", py.reshape(-1).shape)
-    print("y.shape", y.reshape(-1).shape)
-    print("date before", test_date.shape)
-    print("date.shape", test_date[day:len(test_date)].shape)
+    # print("py.shape", py.reshape(-1).shape)
+    # print("y.shape", y.reshape(-1).shape)
+    # print("date before", test_date.shape)
+    # print("date.shape", test_date[day:len(test_date)].shape)
 
-    # plotting
     from datetime import datetime
     import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches
@@ -108,6 +116,7 @@ def main():
         date.append(d)
     date = np.array(date)
 
+    # plotting
     plt.plot(date.reshape(-1), py.reshape(-1), label="predict_y", color='green')
     plt.plot(date.reshape(-1), y.reshape(-1), label="test_y", color='red')
     red_patch = mpatches.Patch(color='red', label='Actual Price')
@@ -115,10 +124,6 @@ def main():
     plt.legend(handles=[red_patch, green_patch])
     plt.ylabel('BTC Prices (USD)')
     plt.xlabel('Test dates')
-    #plt.legend(handles=[green_patch])
-
-    #leg = plt.legend(loc='best', ncol=2, mode="expand", shadow=True, fancybox=True)
-    #leg.get_frame().set_alpha(0.5)
     plt.show()
 
 
