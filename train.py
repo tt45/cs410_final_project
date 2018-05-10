@@ -131,16 +131,19 @@ def main():
         d = datetime(year=int(s[0:4]), month=int(s[4:6]), day=int(s[6:8]))
         date.append(d)
     date = np.array(date)
+    print("[May 01, 2018] predicted BTC price (USD) = ", predict_y[0])
 
     # plotting
     plt.plot(date.reshape(-1), py.reshape(-1), label="predict_y", color='green')
-    plt.plot(date.reshape(-1), y.reshape(-1), label="test_y", color='red')
+    plt.plot(date[1:-1].reshape(-1), y[1:-1].reshape(-1), label="test_y", color='red')
     red_patch = mpatches.Patch(color='red', label='Actual Price')
     green_patch = mpatches.Patch(color='green', label='Predicted Price')
     plt.legend(handles=[red_patch, green_patch])
     plt.ylabel('BTC Prices (USD)')
     plt.xlabel('Test dates')
     plt.show()
+
+
 
 
 if __name__ == "__main__":
