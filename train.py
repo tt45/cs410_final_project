@@ -10,7 +10,6 @@ def main():
     x_arr = data['Sentiment']
     date_arr = data['Date']
 
-
     # normalize BTC price
     from sklearn.preprocessing import MinMaxScaler
     mmscaler = MinMaxScaler(feature_range=(0, 1))
@@ -19,14 +18,30 @@ def main():
     #print(y_arr)
 
     # select 80% as training data
+    percent = input('Please enter the percentage you want to set as training data. \n'
+                    'The percentage should be within [5,95]: ')
+    percent = int(percent)
+    if percent < 5:
+        percent = input('Please enter greater than 5 %: ')
+        percent = int(percent)
+    if percent > 95:
+        percent = input('Please enter smaller than 95 %: ')
+        percent = int(percent)
+    print("Note that the rest ",100-percent," % will be testing data.")
     # since the data is corresponding with date, it has to be in order
-    print(len(y_arr), len(x_arr))
-    index_cut = int(len(y_arr)*0.2)
+
+    # print(len(y_arr), len(x_arr))
+
+    index_cut = int(len(y_arr)*(100-percent)/100)
     test_x = x_arr[0:index_cut]
     train_x = x_arr[index_cut:len(x_arr)]
     test_y = y_arr[0:index_cut]
     train_y = y_arr[index_cut:len(x_arr)]
     test_date = date_arr[0:index_cut]
+
+    print("Training data size = ", len(train_y))
+    print("Testing data size = ", len(test_x))
+    print("Start process data")
 
     # process data to use [days] day prev [prev-price and this day's sentiment]
     day = 2
@@ -45,8 +60,8 @@ def main():
 
     train_x = np.array(Xtrain)
     train_y = np.array(Ytrain)
-    print(train_x.shape)
-    print(train_y.shape)
+    print("Training input shape: ", train_x.shape)
+    print("Training output shape: ", train_y.shape)
 
     Xtest = []
     Ytest = []
@@ -65,21 +80,22 @@ def main():
     #print(test_x.shape)
     #print(test_y.shape)
 
+    print("Training the model...")
     # Model building:
     # LSTM Networks with
     #   3 layers
     #   50 nodes per layers
     #   loss = Mean Absolute Error
-    #   optimizer = Adam Optimization 
+    #   optimizer = Adam Optimization
     import keras
     lstm = keras.models.Sequential()
     lstm.add(keras.layers.LSTM(50, input_shape=(train_x.shape[1], train_x.shape[2]), return_sequences=True))
     lstm.add(keras.layers.LSTM(50))
     lstm.add(keras.layers.Dense(1))
     lstm.compile(loss='mae', optimizer='adam')
-    
+
     # Model training:
-    #   bagging with 
+    #   bagging with
     #   batch_size = 100
     #   epochs = 300
     re = lstm.fit(train_x, train_y, epochs=300, batch_size=100, validation_data=(test_x, test_y), verbose=0, shuffle=False)
@@ -127,5 +143,5 @@ def main():
     plt.show()
 
 
-if __name__ =="__main__":
+if __name__ == "__main__":
     main()
