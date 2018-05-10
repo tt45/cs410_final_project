@@ -1,13 +1,15 @@
 from math import sqrt
 import numpy as np
-import sklearn
 
 def main():
+
     import pandas as pd
     data = pd.read_csv("alldata.csv")
+
     y_arr = data['Price']
     x_arr = data['Sentiment']
     date_arr = data['Date']
+
 
     # normalize BTC price
     from sklearn.preprocessing import MinMaxScaler
@@ -30,13 +32,13 @@ def main():
     day = 2
     Xtrain = []
     Ytrain = []
-    for i in range(day, len(train_x)):
-        # y = train_y[i + 2]
+    for i in range(0, len(train_x)-day):
+        # price
         y = train_y[i]
         Ytrain.append(y)
-        # !!!
-        x = train_y[i - day: i]
-        # -!!!
+        # x = get 2 previous day's price
+        x = train_y[i+1:i+1+day]
+        # x = append today's sentiment score from reddit data
         x = x.tolist()
         x.append(train_x[i].tolist())
         Xtrain.append(x)
@@ -48,13 +50,13 @@ def main():
 
     Xtest = []
     Ytest = []
-    for i in range(day, len(test_x)):
+    for i in range(0, len(test_x)-day):
         # y = train_y[i + 2]
         y = test_y[i]
         Ytest.append(y)
-        # !!!
-        x = test_y[i - day: i]
-        # -!!!
+        # x = get 2 previous day's price
+        x = test_y[i+1:i+1+day]
+        # x = append today's sentiment score from reddit data
         x = x.tolist()
         x.append(test_x[i].tolist())
         Xtest.append(x)
@@ -67,7 +69,7 @@ def main():
     # train model
     import keras
     lstm = keras.models.Sequential()
-    lstm.add(keras.layers.LSTM(50, input_shape=(train_x.shape[1], train_x.shape[2]),return_sequences=True))
+    lstm.add(keras.layers.LSTM(50, input_shape=(train_x.shape[1], train_x.shape[2]), return_sequences=True))
     lstm.add(keras.layers.LSTM(50))
     lstm.add(keras.layers.Dense(1))
     lstm.compile(loss='mae', optimizer='adam')
@@ -98,8 +100,9 @@ def main():
     # plotting
     from datetime import datetime
     import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
     date = []
-    for s in test_date[day:len(test_date)]:
+    for s in test_date[0:len(test_date)-day]:
         s = str(s)
         d = datetime(year=int(s[0:4]), month=int(s[4:6]), day=int(s[6:8]))
         date.append(d)
@@ -107,6 +110,12 @@ def main():
 
     plt.plot(date.reshape(-1), py.reshape(-1), label="predict_y", color='green')
     plt.plot(date.reshape(-1), y.reshape(-1), label="test_y", color='red')
+    red_patch = mpatches.Patch(color='red', label='Actual Price')
+    green_patch = mpatches.Patch(color='green', label='Predicted Price')
+    plt.legend(handles=[red_patch, green_patch])
+    plt.ylabel('BTC Prices (USD)')
+    plt.xlabel('Test dates')
+    #plt.legend(handles=[green_patch])
 
     #leg = plt.legend(loc='best', ncol=2, mode="expand", shadow=True, fancybox=True)
     #leg.get_frame().set_alpha(0.5)
